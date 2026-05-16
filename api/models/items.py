@@ -17,6 +17,10 @@ from api.models import Base
 if TYPE_CHECKING:
     from api.models.categories import Category
     from api.models.companies import Company
+    from api.models.order_items import OrderItem
+    from api.models.entries import Entry
+    from api.models.exits import Exit
+    from api.models.sales import Sale
 
 
 class Item(Base):
@@ -47,6 +51,10 @@ class Item(Base):
 
     category: Mapped["Category"] = relationship(back_populates="items")
     company: Mapped["Company"] = relationship(back_populates="items")
+    order_items: Mapped[List["OrderItem"]] = relationship(back_populates="item")
+    entries: Mapped[List["Entry"]] = relationship(back_populates="item")
+    exits: Mapped[List["Exit"]] = relationship(back_populates="item")
+    sales: Mapped[List["Sale"]] = relationship(back_populates="item")
 
     __table_args__ = (
         CheckConstraint(

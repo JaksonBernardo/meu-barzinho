@@ -19,6 +19,9 @@ if TYPE_CHECKING:
     from api.models.categories import Category
     from api.models.items import Item
     from api.models.clients import Client
+    from api.models.orders import Order
+    from api.models.entries import Entry
+    from api.models.exits import Exit
 
 
 class TypeDoc(str, Enum):
@@ -51,3 +54,6 @@ class Company(Base):
     categories: Mapped[List["Category"]] = relationship(back_populates="company")
     items: Mapped[List["Item"]] = relationship(back_populates="company")
     clients: Mapped[List["Client"]] = relationship(back_populates="company")
+    orders: Mapped[List["Order"]] = relationship(back_populates="company")
+    entries: Mapped[List["Entry"]] = relationship(back_populates="company")
+    exits: Mapped[List["Exit"]] = relationship(back_populates="company")
