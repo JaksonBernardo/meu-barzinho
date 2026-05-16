@@ -14,6 +14,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.models import Base
 
+if TYPE_CHECKING:
+    from api.models.users import User
+    from api.models.categories import Category
+    from api.models.items import Item
+    from api.models.clients import Client
+
 
 class TypeDoc(str, Enum):
     PF = "PF"
@@ -41,6 +47,7 @@ class Company(Base):
         onupdate = func.now()
     )
 
-
-
-
+    users: Mapped[List["User"]] = relationship(back_populates="company")
+    categories: Mapped[List["Category"]] = relationship(back_populates="company")
+    items: Mapped[List["Item"]] = relationship(back_populates="company")
+    clients: Mapped[List["Client"]] = relationship(back_populates="company")

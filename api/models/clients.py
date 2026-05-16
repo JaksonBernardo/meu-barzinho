@@ -1,31 +1,33 @@
 from typing import TYPE_CHECKING, List
-from enum import Enum
+from decimal import Decimal
 from datetime import datetime
 from sqlalchemy import (
     String, 
-    Integer, 
     ForeignKey, 
     DateTime, 
-    Boolean, 
+    Text, 
     func,
     CheckConstraint
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from api.models import Base
+from api.models import Base, TypeDoc
 
 if TYPE_CHECKING:
     from api.models.companies import Company
 
 
-class User(Base):
+class Client(Base):
 
-    __tablename__ = "users"
+    __tablename__ = "clients"
 
     id: Mapped[int] = mapped_column(primary_key = True, autoincrement = True)
-    name: Mapped[str] = mapped_column(String(200), nullable = True)
-    email: Mapped[str] = mapped_column(String(255), unique = True, nullable = False)
-    password: Mapped[str] = mapped_column(String(255), nullable = False)
+    name: Mapped[str] = mapped_column(String(255), nullable = False)
+    type_client: Mapped[TypeDoc] = mapped_column(String(4), nullable = True)
+    document: Mapped[str] = mapped_column(String(50), nullable = True)
+    email: Mapped[str] = mapped_column(String(100), nullable = True)
+    address: Mapped[str] = mapped_column(Text, nullable = True)
+    whatsapp: Mapped[str] = mapped_column(String(30), nullable = True)
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id", ondelete = "CASCADE")
     )
@@ -39,4 +41,4 @@ class User(Base):
         onupdate = func.now()
     )
 
-    company: Mapped["Company"] = relationship(back_populates="users")
+    company: Mapped["Company"] = relationship(back_populates="clients")

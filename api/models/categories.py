@@ -16,16 +16,15 @@ from api.models import Base
 
 if TYPE_CHECKING:
     from api.models.companies import Company
+    from api.models.items import Item
 
 
-class User(Base):
+class Category(Base):
 
-    __tablename__ = "users"
+    __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(primary_key = True, autoincrement = True)
-    name: Mapped[str] = mapped_column(String(200), nullable = True)
-    email: Mapped[str] = mapped_column(String(255), unique = True, nullable = False)
-    password: Mapped[str] = mapped_column(String(255), nullable = False)
+    name: Mapped[str] = mapped_column(String(100), nullable = False)
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id", ondelete = "CASCADE")
     )
@@ -39,4 +38,5 @@ class User(Base):
         onupdate = func.now()
     )
 
-    company: Mapped["Company"] = relationship(back_populates="users")
+    company: Mapped["Company"] = relationship(back_populates="categories")
+    items: Mapped[List["Item"]] = relationship(back_populates="category")
