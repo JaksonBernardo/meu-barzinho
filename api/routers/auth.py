@@ -10,7 +10,7 @@ from api.repositories.users import UserRepository
 
 _settings = Settings()
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
 
 def get_user_repository(db: AsyncSession = Depends(get_session)) -> UserRepository:

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from api.core.settings import Settings
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import auth
+from api.routers import auth, users, companies
 
 
 app = FastAPI()
@@ -19,11 +19,13 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(companies.router)
 
 
 
 @app.get(
-    path = "/health",
+    path = "/api/health",
     status_code = status.HTTP_200_OK,
     summary = "Verificando status da API...",
     tags = ["Health API"]
