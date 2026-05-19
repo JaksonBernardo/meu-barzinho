@@ -1,16 +1,16 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, EmailStr
 from datetime import datetime
 from typing import Optional
-from api.schemas.users import UserCreate
-
 from api.models.companies import TypeDoc
 
-class CompanyBase(BaseModel):
+class ClientBase(BaseModel):
     name: str
-    document: Optional[str] = None
-    type_doc: TypeDoc
-    address: Optional[str] = None
-    plan_id: int
+    type_client: TypeDoc
+    document: Optional[str]
+    email: EmailStr
+    address: Optional[str]
+    whatsapp: Optional[str]
+    company_id: int
 
     @field_validator("document")
     @classmethod
@@ -18,14 +18,12 @@ class CompanyBase(BaseModel):
         if v:
             return v.replace(".", "").replace("-", "").replace("/", "").strip()
         return v
+    
+class ClientCreate(ClientBase):
+    pass
 
-class CompanyCreate(CompanyBase):
-    customer_id: Optional[str] = None
-    admin_user: UserCreate
-
-class CompanyPublic(CompanyBase):
+class ClientPublic(ClientBase):
     id: int
-    customer_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

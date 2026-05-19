@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from api.repositories.users import UserRepository
 from api.repositories.companies import CompanyRepository
-from api.schemas.users import UserCreateSchema
+from api.schemas.users import UserCreateWithCompany
 from api.models.users import User
 
 
@@ -15,7 +15,7 @@ class UserService:
         self.__user_repo = user_repo
         self.__company_repo = company_repo
 
-    async def create_user(self, user_data: UserCreateSchema) -> User:
+    async def create_user(self, user_data: UserCreateWithCompany) -> User:
 
         company = await self.__company_repo.get_by_id(user_data.company_id)
 
@@ -35,4 +35,13 @@ class UserService:
                 detail="Email já cadastrado"
             )
 
-        return await self.user_repo.create(user_data.model_dump())
+        user = await self.__user_repo.create(
+            user_data.model_dump(exclude={"company_id"}), 
+            user_data.company_id
+        )
+        
+        db = self.__user_repo._UserRepository__db
+        await db.commit()
+        await db.refresh(user)
+        
+        return user

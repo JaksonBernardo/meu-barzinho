@@ -5,7 +5,7 @@ from api.core.database import get_session
 from api.secutiry.password import verify_password
 from api.secutiry.jwt import create_access_token
 from api.core.settings import Settings
-from api.schemas.auth import LoginRequest, LoginResponse
+from api.schemas.auth import LoginRequest, LoginPublic
 from api.repositories.users import UserRepository
 
 _settings = Settings()
@@ -18,7 +18,7 @@ def get_user_repository(db: AsyncSession = Depends(get_session)) -> UserReposito
     return UserRepository(db)
 
 
-@router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+@router.post("/login", response_model=LoginPublic, status_code=status.HTTP_200_OK)
 async def login(
     login_data: LoginRequest,
     response: Response,
@@ -50,7 +50,7 @@ async def login(
         secure=False,  # Em produção deve ser True (HTTPS)
     )
 
-    return LoginResponse(
+    return LoginPublic(
         name=user.name,
         email=user.email,
         company_id=user.company_id,

@@ -6,7 +6,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class LoginResponse(BaseModel):
+class LoginPublic(BaseModel):
     name: Optional[str]
     email: EmailStr
     company_id: int

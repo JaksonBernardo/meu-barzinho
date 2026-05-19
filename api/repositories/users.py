@@ -26,15 +26,17 @@ class UserRepository:
 
         return result.scalar_one_or_none()
 
-    async def create(self, user_data: dict) -> User:
+    async def create(self, user_data: dict, company_id: int) -> User:
 
         user_data["password"] = hash_password(user_data["password"])
+
+        user_data["company_id"] = company_id
 
         user = User(**user_data)
 
         self.__db.add(user)
 
-        await self.__db.commit()
-        await self.__db.refresh(user)
+        await self.__db.flush() 
         
         return user
+

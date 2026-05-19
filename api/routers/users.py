@@ -6,7 +6,7 @@ from api.core.database import get_session
 from api.repositories.users import UserRepository
 from api.repositories.companies import CompanyRepository
 from api.services.users import UserService
-from api.schemas.users import UserCreateSchema, UserResponseSchema
+from api.schemas.users import UserCreate, UserPublic
 from api.secutiry.jwt import decode_access_token
 from api.models.users import User
 
@@ -63,11 +63,11 @@ async def get_current_user(
 
 @router.post(
     path="/", 
-    response_model=UserResponseSchema, 
+    response_model=UserPublic, 
     status_code=status.HTTP_201_CREATED
 )
 async def create_user(
-    user_data: UserCreateSchema,
+    user_data: UserCreate,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user)
 ):

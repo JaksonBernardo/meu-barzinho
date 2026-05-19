@@ -17,8 +17,11 @@ class CompanyRepository:
         return result.scalar_one_or_none()
 
     async def create(self, company_data: dict) -> Company:
+
         company = Company(**company_data)
+
         self.__db.add(company)
-        await self.__db.commit()
-        await self.__db.refresh(company)
+
+        await self.__db.flush()
+        
         return company
