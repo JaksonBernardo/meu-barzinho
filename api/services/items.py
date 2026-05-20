@@ -13,7 +13,7 @@ class ItemService:
         self.__category_repo = category_repo
 
     async def create_item(self, db: AsyncSession, item_data: ItemCreate) -> Item:
-        # Check if category belongs to the company
+
         category = await self.__category_repo.get_by_id(item_data.category_id, item_data.company_id)
         if not category:
             raise HTTPException(
@@ -95,6 +95,7 @@ class ItemService:
             )
 
     async def delete_item(self, db: AsyncSession, item_id: int, company_id: int) -> None:
+        
         item = await self.get_item(item_id, company_id)
         
         try:
