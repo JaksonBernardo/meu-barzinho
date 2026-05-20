@@ -58,7 +58,7 @@ class Item(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "stock > 0",
+            "stock >= 0",
             name = "check_stock_positive_value"
         ),
         CheckConstraint(
@@ -66,3 +66,4 @@ class Item(Base):
             name = "check_price_positive_value"
         )
     )
+
