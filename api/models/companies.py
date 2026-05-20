@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from api.models.orders import Order
     from api.models.entries import Entry
     from api.models.exits import Exit
+    from api.models.sales import Sale
 
 
 class TypeDoc(str, Enum):
@@ -57,3 +58,4 @@ class Company(Base):
     orders: Mapped[List["Order"]] = relationship(back_populates="company")
     entries: Mapped[List["Entry"]] = relationship(back_populates="company")
     exits: Mapped[List["Exit"]] = relationship(back_populates="company")
+    sales: Mapped[List["Sale"]] = relationship(back_populates="company")

@@ -17,6 +17,7 @@ from api.models import Base
 
 if TYPE_CHECKING:
     from api.models.items import Item
+    from api.models.companies import Company
 
 
 class Sale(Base):
@@ -40,6 +41,10 @@ class Sale(Base):
     
     payment_form: Mapped[str] = mapped_column(String(30), nullable = False)
 
+    company_id: Mapped[int] = mapped_column(
+        ForeignKey("companies.id", ondelete = "CASCADE")
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default = func.now()
@@ -47,6 +52,7 @@ class Sale(Base):
 
     # Relationships
     item: Mapped["Item"] = relationship(back_populates="sales")
+    company: Mapped["Company"] = relationship(back_populates="sales")
 
     __table_args__ = (
         CheckConstraint(
