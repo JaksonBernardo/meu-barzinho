@@ -90,5 +90,5 @@ async def delete_client(
     current_user: User = Depends(get_current_user)
 ):
     await client_service.delete_client(client_id, current_user.company_id)
-    
+
     return None
