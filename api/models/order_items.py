@@ -52,6 +52,10 @@ class OrderItem(Base):
     order: Mapped["Order"] = relationship(back_populates="order_items")
     item: Mapped["Item"] = relationship(back_populates="order_items")
 
+    @property
+    def item_name(self) -> str:
+        return self.item.name if self.item else "Desconhecido"
+
     __table_args__ = (
         CheckConstraint(
             "price >= 0",

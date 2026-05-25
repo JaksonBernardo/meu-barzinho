@@ -1,13 +1,14 @@
 from fastapi import FastAPI, status
 from api.core.settings import Settings
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import auth, users, companies, clients, categories, items, entries, exits, orders
+from api.routers import auth, users, companies, clients, categories, items, entries, exits, orders, stock
 
 
 app = FastAPI()
 
 origins = [
-    Settings().URL_CORS,
+    "http://127.0.0.1:4200",
+    "http://localhost:4200"
 ]
 
 app.add_middleware(
@@ -27,6 +28,7 @@ app.include_router(items.router)
 app.include_router(entries.router)
 app.include_router(exits.router)
 app.include_router(orders.router)
+app.include_router(stock.router)
 
 
 

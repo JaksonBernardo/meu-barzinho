@@ -7,7 +7,6 @@ class ItemBase(BaseModel):
     name: str
     category_id: int
     price: Decimal = Field(gt=0)
-    stock: int = Field(ge=0)
     company_id: int
 
 class ItemCreate(ItemBase):
@@ -23,6 +22,7 @@ class ItemPublic(ItemBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    stock: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -31,3 +31,4 @@ class ItemList(BaseModel):
     total: int
     limit: int
     offset: int
+    search: Optional[str] = None

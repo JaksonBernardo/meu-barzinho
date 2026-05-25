@@ -38,16 +38,18 @@ class CategoryService:
         self, 
         company_id: int, 
         limit: int = 10, 
-        offset: int = 0
+        offset: int = 0,
+        search: str | None = None
     ) -> dict:
-        categories = await self.__category_repo.get_all_by_company(company_id, limit, offset)
-        total = await self.__category_repo.count_by_company(company_id)
+        categories = await self.__category_repo.get_all_by_company(company_id, limit, offset, search)
+        total = await self.__category_repo.count_by_company(company_id, search)
         
         return {
             "items": categories,
             "total": total,
             "limit": limit,
-            "offset": offset
+            "offset": offset,
+            "search": search
         }
 
     async def update_category(

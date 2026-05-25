@@ -1,3 +1,4 @@
+from fastapi.security import OAuth2PasswordBearer
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -11,6 +12,8 @@ from api.secutiry.jwt import decode_access_token
 from api.models.users import User
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login", auto_error=False)
 
 
 def get_user_repository(db: AsyncSession = Depends(get_session)) -> UserRepository:
@@ -30,10 +33,12 @@ def get_user_service(
 
 async def get_current_user(
     request: Request,
+    token: str = Depends(oauth2_scheme),
     user_repo: UserRepository = Depends(get_user_repository)
 ) -> User:
     
-    token = request.cookies.get("access_token")
+    if not token:
+        token = request.cookies.get("access_token")
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -59,6 +64,15 @@ async def get_current_user(
         )
     
     return user
+
+
+@router.get(
+    path="/me",
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK
+)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.post(

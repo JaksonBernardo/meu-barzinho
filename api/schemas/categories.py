@@ -24,3 +24,4 @@ class CategoryList(BaseModel):
     total: int
     limit: int
     offset: int
+    search: Optional[str] = None

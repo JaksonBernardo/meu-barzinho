@@ -23,7 +23,7 @@ class Client(Base):
 
     id: Mapped[int] = mapped_column(primary_key = True, autoincrement = True)
     name: Mapped[str] = mapped_column(String(255), nullable = False)
-    type_client: Mapped[TypeDoc] = mapped_column(String(4), nullable = True)
+    type_client: Mapped[TypeDoc] = mapped_column(String(4), nullable = True, default="PF")
     document: Mapped[str] = mapped_column(String(50), nullable = True)
     email: Mapped[str] = mapped_column(String(100), nullable = True)
     address: Mapped[str] = mapped_column(Text, nullable = True)

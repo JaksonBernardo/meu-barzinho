@@ -11,7 +11,7 @@ class OrderBase(BaseModel):
     status: StatusOrder = StatusOrder.OPEN
     type_discount: TypeDiscount = TypeDiscount.FIXED
     discount: Decimal = Decimal("0.00")
-    payment_form: PaymentForm
+    payment_form: PaymentForm = PaymentForm.CASH
     company_id: int
 
 class OrderCreate(OrderBase):
@@ -32,6 +32,7 @@ class OrderPublic(OrderBase):
     created_at: datetime
     updated_at: datetime
     order_items: List[OrderItemPublic] = []
+    total_value: Decimal
 
     model_config = ConfigDict(from_attributes=True)
 

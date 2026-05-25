@@ -49,10 +49,11 @@ async def create_client(
 async def list_clients(
     limit: int = Query(10, ge=1, le=20),
     offset: int = Query(0, ge=0),
+    search: str | None = None,
     client_service: ClientService = Depends(get_client_service),
     current_user: User = Depends(get_current_user)
 ):
-    return await client_service.list_clients(current_user.company_id, limit, offset)
+    return await client_service.list_clients(current_user.company_id, limit, offset, search)
 
 
 @router.get(

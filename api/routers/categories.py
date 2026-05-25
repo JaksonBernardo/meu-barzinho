@@ -48,10 +48,11 @@ async def create_category(
 async def list_categories(
     limit: int = Query(10, ge=1, le=20),
     offset: int = Query(0, ge=0),
+    search: str | None = Query(None),
     category_service: CategoryService = Depends(get_category_service),
     current_user: User = Depends(get_current_user)
 ):
-    return await category_service.list_categories(current_user.company_id, limit, offset)
+    return await category_service.list_categories(current_user.company_id, limit, offset, search)
 
 
 @router.get(

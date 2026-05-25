@@ -52,10 +52,11 @@ async def create_item(
 async def list_items(
     limit: int = Query(10, ge=1, le=20),
     offset: int = Query(0, ge=0),
+    search: str | None = Query(None),
     item_service: ItemService = Depends(get_item_service),
     current_user: User = Depends(get_current_user)
 ):
-    return await item_service.list_items(current_user.company_id, limit, offset)
+    return await item_service.list_items(current_user.company_id, limit, offset, search)
 
 
 @router.get(

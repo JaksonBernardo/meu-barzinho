@@ -7,6 +7,8 @@ from api.secutiry.jwt import create_access_token
 from api.core.settings import Settings
 from api.schemas.auth import LoginRequest, LoginPublic
 from api.repositories.users import UserRepository
+from api.routers.users import get_current_user
+from api.models.users import User
 
 _settings = Settings()
 
@@ -67,3 +69,12 @@ async def logout(response: Response):
         secure=False,
     )
     return {"message": "Logout realizado com sucesso"}
+
+@router.get("/login/me", response_model=LoginPublic, status_code=status.HTTP_200_OK)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return LoginPublic(
+        name=current_user.name,
+        email=current_user.email,
+        company_id=current_user.company_id,
+        message="Sessão ativa"
+    )

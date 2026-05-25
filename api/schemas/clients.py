@@ -5,7 +5,7 @@ from api.models.companies import TypeDoc
 
 class ClientBase(BaseModel):
     name: str
-    type_client: TypeDoc
+    type_client: Optional[TypeDoc] = None
     document: Optional[str] = None
     email: Optional[EmailStr] = None
     address: Optional[str] = None

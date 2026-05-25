@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from api.repositories.clients import ClientRepository
 from api.schemas.clients import ClientCreate, ClientUpdate
 from api.models import Client
-from typing import Sequence
+from typing import Sequence, Optional
 
 
 class ClientService:
@@ -11,6 +11,17 @@ class ClientService:
         self.__client_repo = client_repo
 
     async def create_client(self, client_data: ClientCreate) -> Client:
+        # Verificar duplicidade
+        if client_data.email:
+            existing = await self.__client_repo.get_by_email(client_data.email, client_data.company_id)
+            if existing:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="E-mail já cadastrado para esta empresa.")
+
+        if client_data.document:
+            existing = await self.__client_repo.get_by_document(client_data.document, client_data.company_id)
+            if existing:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Documento já cadastrado para esta empresa.")
+
         client = Client(**client_data.model_dump())
         
         try:
@@ -43,10 +54,11 @@ class ClientService:
         self, 
         company_id: int, 
         limit: int = 10, 
-        offset: int = 0
+        offset: int = 0,
+        search: Optional[str] = None
     ) -> dict:
-        clients = await self.__client_repo.get_all_by_company(company_id, limit, offset)
-        total = await self.__client_repo.count_by_company(company_id)
+        clients = await self.__client_repo.get_all_by_company(company_id, limit, offset, search)
+        total = await self.__client_repo.count_by_company(company_id, search)
         
         return {
             "items": clients,

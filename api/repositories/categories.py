@@ -26,23 +26,32 @@ class CategoryRepository:
         self, 
         company_id: int, 
         limit: int = 10, 
-        offset: int = 0
+        offset: int = 0,
+        search: str | None = None
     ) -> Sequence[Category]:
         query = (
             select(Category)
             .where(Category.company_id == company_id)
-            .limit(limit)
-            .offset(offset)
         )
+        
+        if search:
+            query = query.where(Category.name.ilike(f"%{search}%"))
+            
+        query = query.limit(limit).offset(offset)
+        
         result = await self.__db.execute(query)
         return result.scalars().all()
 
-    async def count_by_company(self, company_id: int) -> int:
+    async def count_by_company(self, company_id: int, search: str | None = None) -> int:
         query = (
             select(func.count())
             .select_from(Category)
             .where(Category.company_id == company_id)
         )
+        
+        if search:
+            query = query.where(Category.name.ilike(f"%{search}%"))
+            
         result = await self.__db.execute(query)
         return result.scalar() or 0
 

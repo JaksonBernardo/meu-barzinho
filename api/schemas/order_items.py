@@ -17,5 +17,6 @@ class OrderItemCreate(BaseModel):
 class OrderItemPublic(OrderItemBase):
     id: int
     created_at: datetime
+    item_name: str
 
     model_config = ConfigDict(from_attributes=True)

@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from api.models.orders import Order
+from api.models.order_items import OrderItem
 from typing import Sequence
 
 
@@ -9,6 +10,14 @@ class OrderRepository:
 
     def __init__(self, db: AsyncSession):
         self.__db = db
+
+    async def get_by_number(self, number: int, company_id: int) -> Order | None:
+        query = select(Order).where(
+            Order.number == number,
+            Order.company_id == company_id
+        )
+        result = await self.__db.execute(query)
+        return result.scalar_one_or_none()
 
     async def save(self, order: Order) -> Order:
         self.__db.add(order)
@@ -18,7 +27,7 @@ class OrderRepository:
     async def get_by_id(self, order_id: int, company_id: int) -> Order | None:
         query = (
             select(Order)
-            .options(selectinload(Order.order_items))
+            .options(selectinload(Order.order_items).selectinload(OrderItem.item))
             .where(
                 Order.id == order_id, 
                 Order.company_id == company_id
@@ -35,7 +44,7 @@ class OrderRepository:
     ) -> Sequence[Order]:
         query = (
             select(Order)
-            .options(selectinload(Order.order_items))
+            .options(selectinload(Order.order_items).selectinload(OrderItem.item))
             .where(Order.company_id == company_id)
             .order_by(Order.created_at.desc())
             .limit(limit)

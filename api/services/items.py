@@ -48,16 +48,18 @@ class ItemService:
         self, 
         company_id: int, 
         limit: int = 10, 
-        offset: int = 0
+        offset: int = 0,
+        search: str | None = None
     ) -> dict:
-        items = await self.__item_repo.get_all_by_company(company_id, limit, offset)
-        total = await self.__item_repo.count_by_company(company_id)
+        items = await self.__item_repo.get_all_by_company(company_id, limit, offset, search)
+        total = await self.__item_repo.count_by_company(company_id, search)
         
         return {
             "items": items,
             "total": total,
             "limit": limit,
-            "offset": offset
+            "offset": offset,
+            "search": search
         }
 
     async def update_item(
@@ -97,6 +99,25 @@ class ItemService:
     async def delete_item(self, db: AsyncSession, item_id: int, company_id: int) -> None:
         
         item = await self.get_item(item_id, company_id)
+        
+        # Checking dependencies
+        from api.repositories.order_items import OrderItemRepository
+        from api.repositories.sales import SaleRepository
+        
+        order_item_repo = OrderItemRepository(db)
+        sale_repo = SaleRepository(db)
+        
+        if await order_item_repo.exists_by_item_id(item_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Não é possível excluir um item que possui pedidos associados."
+            )
+            
+        if await sale_repo.exists_by_item_id(item_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Não é possível excluir um item que possui vendas associadas."
+            )
         
         try:
             await self.__item_repo.delete(item)

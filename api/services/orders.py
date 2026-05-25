@@ -4,8 +4,10 @@ from api.repositories.orders import OrderRepository
 from api.repositories.order_items import OrderItemRepository
 from api.repositories.items import ItemRepository
 from api.repositories.sales import SaleRepository
+from api.services.exits import ExitService
 from api.schemas.orders import OrderCreate, OrderUpdate
 from api.schemas.order_items import OrderItemCreate
+from api.schemas.exits import ExitCreate
 from api.models.orders import Order, StatusOrder
 from api.models.order_items import OrderItem
 from api.models.sales import Sale
@@ -18,20 +20,30 @@ class OrderService:
         order_repo: OrderRepository, 
         order_item_repo: OrderItemRepository,
         item_repo: ItemRepository,
-        sale_repo: SaleRepository = None
+        sale_repo: SaleRepository = None,
+        exit_service: ExitService = None
     ):
         self.__order_repo = order_repo
         self.__order_item_repo = order_item_repo
         self.__item_repo = item_repo
         self.__sale_repo = sale_repo
+        self.__exit_service = exit_service
 
     async def create_order(self, db: AsyncSession, order_data: OrderCreate) -> Order:
+        existing_order = await self.__order_repo.get_by_number(order_data.number, order_data.company_id)
+        if existing_order:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Já existe um pedido com o número {order_data.number} para esta empresa."
+            )
+
         order = Order(**order_data.model_dump())
         try:
             await self.__order_repo.save(order)
             await db.commit()
-            await db.refresh(order)
-            return order
+            
+            # Fetch again to ensure relationships (order_items) are loaded
+            return await self.get_order(order.id, order.company_id)
         except Exception as e:
             await db.rollback()
             raise HTTPException(
@@ -108,6 +120,7 @@ class OrderService:
             
             await db.commit()
             await db.refresh(order_item)
+            order_item.item = item
             return order_item
         except Exception as e:
             await db.rollback()
@@ -174,7 +187,7 @@ class OrderService:
             
             # If status changed to PAID, create sales records
             if old_status != StatusOrder.PAID and order.status == StatusOrder.PAID:
-                await self.__create_sales_from_order(order, company_id)
+                await self.__create_sales_from_order(db, order, company_id)
             
             # If status changed FROM PAID to something else, remove sales
             if old_status == StatusOrder.PAID and order.status != StatusOrder.PAID:
@@ -214,7 +227,7 @@ class OrderService:
             
             # If status changed to PAID, create sales records
             if old_status != StatusOrder.PAID and order.status == StatusOrder.PAID:
-                await self.__create_sales_from_order(order, company_id)
+                await self.__create_sales_from_order(db, order, company_id)
             
             # If status changed FROM PAID to something else, remove sales
             if old_status == StatusOrder.PAID and order.status != StatusOrder.PAID:
@@ -246,7 +259,7 @@ class OrderService:
         if self.__sale_repo:
             await self.__sale_repo.delete_by_order(order.number, company_id)
 
-    async def __create_sales_from_order(self, order: Order, company_id: int) -> None:
+    async def __create_sales_from_order(self, db: AsyncSession, order: Order, company_id: int) -> None:
         if not self.__sale_repo:
             return
 
@@ -282,6 +295,17 @@ class OrderService:
                 company_id=company_id
             )
             await self.__sale_repo.save(sale)
+            
+            # Create stock exit if exit_service is available
+            if self.__exit_service:
+                await self.__exit_service.create_exit(db, ExitCreate(
+                    item_id=oi.item_id,
+                    price=oi.price,
+                    qtd=oi.qtd,
+                    date_exit=order.created_at.date(),
+                    hour=order.created_at.time(),
+                    company_id=company_id
+                ))
 
     async def delete_order(self, db: AsyncSession, order_id: int, company_id: int) -> None:
         order = await self.get_order(order_id, company_id)

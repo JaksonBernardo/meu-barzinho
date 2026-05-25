@@ -56,7 +56,7 @@ class Order(Base):
         default = TypeDiscount.FIXED
     )
     discount: Mapped[Decimal] = mapped_column(Numeric(12, 2), default = "0.00")
-    payment_form: Mapped[PaymentForm] = mapped_column(String(30))
+    payment_form: Mapped[PaymentForm] = mapped_column(String(30), default=PaymentForm.CASH)
     company_id: Mapped[int] = mapped_column(
         ForeignKey("companies.id", ondelete = "CASCADE")
     )
@@ -72,6 +72,17 @@ class Order(Base):
 
     company: Mapped["Company"] = relationship(back_populates="orders")
     order_items: Mapped[List["OrderItem"]] = relationship(back_populates="order")
+
+    @property
+    def total_value(self) -> Decimal:
+        subtotal = sum(item.price * item.qtd for item in self.order_items)
+        if self.type_discount == TypeDiscount.PERCENT:
+            discount_amount = subtotal * (self.discount / 100)
+        else:
+            discount_amount = self.discount
+        
+        total = subtotal - discount_amount
+        return max(total, Decimal("0.00"))
 
     __table_args__ = (
         CheckConstraint(
