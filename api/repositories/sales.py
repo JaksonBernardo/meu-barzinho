@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from api.models.sales import Sale
 from typing import Sequence
+from datetime import date
 
 
 class SaleRepository:
@@ -39,6 +40,27 @@ class SaleRepository:
             .order_by(Sale.created_at.desc())
             .limit(limit)
             .offset(offset)
+        )
+        result = await self.__db.execute(query)
+        return result.scalars().all()
+
+    async def get_all_by_company_and_period(
+        self,
+        company_id: int,
+        start_date: date,
+        end_date: date
+    ) -> Sequence[Sale]:
+        # Casting Sale.created_at to date for comparison
+        query = (
+            select(Sale)
+            .where(
+                and_(
+                    Sale.company_id == company_id,
+                    func.date(Sale.created_at) >= start_date,
+                    func.date(Sale.created_at) <= end_date
+                )
+            )
+            .order_by(Sale.created_at.asc())
         )
         result = await self.__db.execute(query)
         return result.scalars().all()

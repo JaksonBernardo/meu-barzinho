@@ -68,7 +68,7 @@ class Sale(Base):
             name = "chk_sales_total_value"
         ),
         CheckConstraint(
-            "payment_form IN ('CASH', 'PIX', 'DEBIT', 'CREDIT')",
+            "payment_form IN ('DINHEIRO', 'PIX', 'DEBITO', 'CREDITO')",
             name = "chk_sales_payment_form"
         ),
     )

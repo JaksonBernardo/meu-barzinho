@@ -193,9 +193,11 @@ Esta documentação detalha as rotas disponíveis na API para auxiliar no desenv
 - **Exemplo de JSON (Request):**
   ```json
   {
-    "status": "PAGO"
+    "status": "PAGO",
+    "payment_form": "CREDIT"
   }
   ```
+  *Nota: `payment_form` é opcional.*
 
 ### Adicionar Item ao Pedido
 - **Rota:** `POST /api/v1/orders/{order_id}/items`
@@ -222,6 +224,17 @@ Esta documentação detalha as rotas disponíveis na API para auxiliar no desenv
 ### Remover Item do Pedido
 - **Rota:** `DELETE /api/v1/orders/{order_id}/items/{order_item_id}`
 - **Status:** 204 No Content
+---
+
+## Vendas
+
+### Listar Vendas por Período
+- **Rota:** `GET /api/v1/sales/period`
+- **Query Params:**
+  - `start_date` (date: YYYY-MM-DD, obrigatório)
+  - `end_date` (date: YYYY-MM-DD, obrigatório)
+- **Resposta:** `List[SalePublic]`
+
 ---
 
 ## Usuários

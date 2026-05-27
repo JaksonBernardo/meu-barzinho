@@ -71,7 +71,10 @@ class Order(Base):
     )
 
     company: Mapped["Company"] = relationship(back_populates="orders")
-    order_items: Mapped[List["OrderItem"]] = relationship(back_populates="order")
+    order_items: Mapped[List["OrderItem"]] = relationship(
+        back_populates="order", 
+        cascade="all, delete-orphan"
+    )
 
     @property
     def total_value(self) -> Decimal:

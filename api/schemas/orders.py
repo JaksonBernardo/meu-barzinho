@@ -26,6 +26,7 @@ class OrderUpdate(BaseModel):
 
 class OrderStatusUpdate(BaseModel):
     status: StatusOrder
+    payment_form: Optional[PaymentForm] = None
 
 class OrderPublic(OrderBase):
     id: int

@@ -115,7 +115,8 @@ async def update_order_status(
         db, 
         order_id, 
         current_user.company_id, 
-        status_data.status
+        status_data.status,
+        payment_form=status_data.payment_form.value if status_data.payment_form else None
     )
 
 

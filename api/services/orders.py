@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.repositories.orders import OrderRepository
@@ -212,15 +213,18 @@ class OrderService:
         db: AsyncSession, 
         order_id: int, 
         company_id: int, 
-        new_status: StatusOrder
+        new_status: StatusOrder,
+        payment_form: Optional[str] = None
     ) -> Order:
         order = await self.get_order(order_id, company_id)
         
         old_status = order.status
-        if old_status == new_status:
+        if old_status == new_status and not payment_form:
             return order
             
         order.status = new_status
+        if payment_form:
+            order.payment_form = payment_form
             
         try:
             await self.__order_repo.save(order)

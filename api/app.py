@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from api.core.settings import Settings
 from fastapi.middleware.cors import CORSMiddleware
-from api.routers import auth, users, companies, clients, categories, items, entries, exits, orders, stock
+from api.routers import auth, users, companies, clients, categories, items, entries, exits, orders, stock, sales
 
 
 app = FastAPI()
@@ -29,6 +29,7 @@ app.include_router(entries.router)
 app.include_router(exits.router)
 app.include_router(orders.router)
 app.include_router(stock.router)
+app.include_router(sales.router)
 
 
 
